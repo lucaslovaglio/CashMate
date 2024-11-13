@@ -8,9 +8,11 @@ import com.cashmate.data.AppDatabase
 import com.cashmate.data.Member
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,7 +32,9 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchTotalExpense() {
         viewModelScope.launch {
-            _totalExpense.value = cashMateDatabase.memberDao().getTotalBalance()
+            withContext(Dispatchers.Default) {
+                _totalExpense.value = cashMateDatabase.memberDao().getTotalBalance()
+            }
         }
     }
 
