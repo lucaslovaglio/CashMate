@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
@@ -34,10 +35,9 @@ class BiometricAuthManager @Inject constructor() {
             }
         )
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setAllowedAuthenticators(BIOMETRIC_STRONG)
+            .setAllowedAuthenticators(BIOMETRIC_STRONG or DEVICE_CREDENTIAL)
             .setTitle("Biometric Authentication")
             .setSubtitle("Log in using your biometric credentials")
-            .setNegativeButtonText("Cancel")
             .build()
         biometricPrompt.authenticate(promptInfo)
     }

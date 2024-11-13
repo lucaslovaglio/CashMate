@@ -1,52 +1,49 @@
 package com.cashmate.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
-import com.cashmate.logs.Movement
+import com.cashmate.data.AppDatabase
+import com.cashmate.data.Member
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : ViewModel() {
-    private var _members = MutableStateFlow(listOf<Member>())
-    val members = _members.asStateFlow()
+class HomeViewModel @Inject constructor(
+    @ApplicationContext val context: Context,
+) : ViewModel() {
+    private val cashMateDatabase = AppDatabase.getDatabase(context)
 
-    private val _tripName = MutableStateFlow("Nombre del Viaje")
-    val tripName = _tripName.asStateFlow()
-
-    private val _averageExpense = MutableStateFlow(0.0)
-    val averageExpense: StateFlow<Double> get() = _averageExpense
-
+    val members = cashMateDatabase.memberDao().getAllMembers().asFlow()
     private val _totalExpense = MutableStateFlow(0.0)
-    val totalExpense: StateFlow<Double> get() = _totalExpense
+    val totalExpense: StateFlow<Double> = _totalExpense
 
-    fun addExpense(memberName: String, amount: Double) {
+    init {
+        fetchTotalExpense()
+    }
+
+
+    private fun fetchTotalExpense() {
         viewModelScope.launch {
-            updateMembers(memberName, amount)
+            _totalExpense.value = cashMateDatabase.memberDao().getTotalBalance()
         }
     }
 
-    private fun updateMembers(memberName: String, amount: Double) {
-        val updatedMembers = _members.value.map { member ->
-            if (member.name == memberName) {
-                member.copy(spent = member.spent + amount)
-            } else {
-                member
-            }
+    fun addExpenseToMember(memberId: Int, amount: Double) {
+        viewModelScope.launch {
+            cashMateDatabase.memberDao().addExpenseToMember(memberId, amount)
+            fetchTotalExpense()
         }
-
-        _members.value = updatedMembers
-        calculateExpenses(updatedMembers)
     }
 
-    private fun calculateExpenses(updatedMembers: List<Member>) {
-        val total = updatedMembers.sumOf { it.spent }
-        val average = if (updatedMembers.isNotEmpty()) total / updatedMembers.size else 0.0
-        _totalExpense.value = total
-        _averageExpense.value = average
+    fun insertMember(member: Member) {
+        viewModelScope.launch {
+            cashMateDatabase.memberDao().insertMember(member)
+        }
     }
 }

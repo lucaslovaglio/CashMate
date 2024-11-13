@@ -18,8 +18,8 @@ data class Trip(
         onDelete = ForeignKey.CASCADE)])
 data class TripMember(
     @PrimaryKey(autoGenerate = true) val id: Int,
-    val tripId: Int,           // Relación con la tabla Trip
-    val memberId: Int,        // Relación con la tabla Member
+    val tripId: Int,
+    val memberId: Int,
     val spent: Double
 )
 

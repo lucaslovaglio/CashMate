@@ -22,9 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Logs() {
-    val logsViewModel = hiltViewModel<LogsViewModel>()
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-    val members by homeViewModel.members.collectAsState()
+//    val logsViewModel = hiltViewModel<LogsViewModel>()
+//    val homeViewModel = hiltViewModel<HomeViewModel>()
+//    val members by homeViewModel.members.collectAsState()
 //    val movements by logsViewModel.movements.collectAsState()
 //
 //    var showBottomModal by remember {

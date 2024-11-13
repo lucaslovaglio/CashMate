@@ -1,6 +1,5 @@
 package com.cashmate.navigation
 
-import Home
 import Logs
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -9,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.NavHostController
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.composable
+import com.cashmate.ui.home.Home
 
 @Composable
 fun NavHostComposable(innerPadding: PaddingValues, navController: NavHostController) {

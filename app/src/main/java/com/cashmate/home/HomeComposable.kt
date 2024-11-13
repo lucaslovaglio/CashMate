@@ -1,3 +1,5 @@
+package com.cashmate.ui.home
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,58 +16,64 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cashmate.home.HomeViewModel
-import com.cashmate.home.Member
+import com.cashmate.data.Member
 import androidx.compose.ui.res.stringResource
 import com.cashmate.R
 
 @Composable
 fun Home() {
     val homeViewModel = hiltViewModel<HomeViewModel>()
-    val members by homeViewModel.members.collectAsState()
-    val tripName by homeViewModel.tripName.collectAsState()
-    val averageExpense by homeViewModel.averageExpense.collectAsState()
-    val totalExpense by homeViewModel.totalExpense.collectAsState()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = tripName,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                ExpenseCard(title = stringResource(R.string.average_spending), amount = averageExpense)
-                ExpenseCard(title = stringResource(R.string.total_spent), amount = totalExpense)
-            }
-
-            Text(
-                text = stringResource(R.string.members_title),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-            )
-            LazyColumn {
-                items(members) { member ->
-                    MemberExpenseItem(member)
-                }
-            }
-        }
-    }
+//    val members by homeViewModel.members.collectAsState(initial = emptyList())
+//    val totalExpense by homeViewModel.totalExpense.collectAsState(initial = 0.0)
+//    val tripName = "Trip Name"
+//
+//    // Composición principal
+//    Surface(
+//        modifier = Modifier.fillMaxSize(),
+//        color = MaterialTheme.colorScheme.background
+//    ) {
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(16.dp)
+//        ) {
+//            // Título del viaje
+//            Text(
+//                text = tripName,
+//                style = MaterialTheme.typography.headlineMedium,
+//                color = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(bottom = 16.dp)
+//            )
+//
+//            // Cards de gastos
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                ExpenseCard(title = stringResource(R.string.average_spending), amount = totalExpense)
+//                ExpenseCard(title = stringResource(R.string.total_spent), amount = totalExpense)
+//            }
+//
+//            // Título de miembros
+//            Text(
+//                text = stringResource(R.string.members_title),
+//                style = MaterialTheme.typography.headlineSmall,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = 16.dp)
+//            )
+//
+//            // Lista de miembros con sus gastos
+//            LazyColumn {
+//                items(members) { member ->
+//                    MemberExpenseItem(member)
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable
