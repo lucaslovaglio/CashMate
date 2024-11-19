@@ -10,7 +10,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -22,31 +24,19 @@ class HomeViewModel @Inject constructor(
     private val cashMateDatabase = AppDatabase.getDatabase(context)
 
     val members = cashMateDatabase.memberDao().getAllMembers().asFlow()
-    private val _totalExpense = MutableStateFlow(0.0)
-    val totalExpense: StateFlow<Double> = _totalExpense
 
-    init {
-        fetchTotalExpense()
-    }
+    val totalExpense = cashMateDatabase.memberDao().getTotalBalance().asFlow()
 
 
-    private fun fetchTotalExpense() {
-        viewModelScope.launch {
-            withContext(Dispatchers.Default) {
-                _totalExpense.value = cashMateDatabase.memberDao().getTotalBalance()
-            }
-        }
-    }
 
     fun addExpenseToMember(memberId: Int, amount: Double) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             cashMateDatabase.memberDao().addExpenseToMember(memberId, amount)
-            fetchTotalExpense()
         }
     }
 
     fun insertMember(member: Member) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             cashMateDatabase.memberDao().insertMember(member)
         }
     }

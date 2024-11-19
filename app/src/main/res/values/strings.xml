@@ -7,8 +7,10 @@
     <string name="members_title">Trip Members</string>
     <string name="add_expense">Add Expense</string>
     <string name="spent">Spent</string>
-    <string name="owed">Owed</string>
-    <string name="owe">Owe</string>
+    <string name="is_owed">Is owed</string>
+    <string name="owes">Owes</string>
+    <string name="add_member">Add Member</string>
+
 
 
 </resources>

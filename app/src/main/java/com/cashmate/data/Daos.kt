@@ -30,6 +30,6 @@ interface MemberDao {
     @Query("SELECT balance FROM members WHERE id = :memberId")
     fun getBalanceByMemberId(memberId: Int): Double
 
-    @Query("SELECT SUM(balance) FROM members")
-    fun getTotalBalance(): Double
+    @Query("SELECT SUM(spent) FROM members")
+    fun getTotalBalance(): LiveData<Double>
 }
