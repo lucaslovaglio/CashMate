@@ -76,8 +76,11 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.49")
     kapt("com.google.dagger:hilt-android-compiler:2.49")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
-    implementation("androidx.room:room-runtime:2.5.2")
-    annotationProcessor("androidx.room:room-compiler:2.5.2")
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
     kapt("androidx.room:room-compiler:2.5.2")
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-ktx:2.6.1")
 }

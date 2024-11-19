@@ -24,56 +24,56 @@ import com.cashmate.R
 fun Home() {
     val homeViewModel = hiltViewModel<HomeViewModel>()
 
-//    val members by homeViewModel.members.collectAsState(initial = emptyList())
-//    val totalExpense by homeViewModel.totalExpense.collectAsState(initial = 0.0)
-//    val tripName = "Trip Name"
-//
-//    // Composición principal
-//    Surface(
-//        modifier = Modifier.fillMaxSize(),
-//        color = MaterialTheme.colorScheme.background
-//    ) {
-//        Column(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(16.dp)
-//        ) {
-//            // Título del viaje
-//            Text(
-//                text = tripName,
-//                style = MaterialTheme.typography.headlineMedium,
-//                color = MaterialTheme.colorScheme.primary,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 16.dp)
-//            )
-//
-//            // Cards de gastos
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween
-//            ) {
-//                ExpenseCard(title = stringResource(R.string.average_spending), amount = totalExpense)
-//                ExpenseCard(title = stringResource(R.string.total_spent), amount = totalExpense)
-//            }
-//
-//            // Título de miembros
-//            Text(
-//                text = stringResource(R.string.members_title),
-//                style = MaterialTheme.typography.headlineSmall,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(vertical = 16.dp)
-//            )
-//
-//            // Lista de miembros con sus gastos
-//            LazyColumn {
-//                items(members) { member ->
-//                    MemberExpenseItem(member)
-//                }
-//            }
-//        }
-//    }
+    val members by homeViewModel.members.collectAsState(initial = emptyList())
+    val totalExpense by homeViewModel.totalExpense.collectAsState(initial = 0.0)
+    val tripName = "Trip Name"
+
+    // Composición principal
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Título del viaje
+            Text(
+                text = tripName,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+
+            // Cards de gastos
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ExpenseCard(title = stringResource(R.string.average_spending), amount = totalExpense)
+                ExpenseCard(title = stringResource(R.string.total_spent), amount = totalExpense)
+            }
+
+            // Título de miembros
+            Text(
+                text = stringResource(R.string.members_title),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+
+            // Lista de miembros con sus gastos
+            LazyColumn {
+                items(members) { member ->
+                    MemberExpenseItem(member)
+                }
+            }
+        }
+    }
 }
 
 @Composable
