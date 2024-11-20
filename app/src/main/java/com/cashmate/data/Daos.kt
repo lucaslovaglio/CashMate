@@ -15,21 +15,45 @@ interface MemberDao {
     @Update
     fun updateMember(member: Member)
 
+    @Query("DELETE FROM members WHERE id = :memberId")
+    fun deleteMember(memberId: Int)
+
     @Query("SELECT * FROM members")
     fun getAllMembers(): LiveData<List<Member>>
 
     @Query("SELECT * FROM members WHERE id = :memberId")
-    fun getMemberById(memberId: Int): Member?
+    suspend fun getMemberById(memberId: Int): Member?
 
     @Query("SELECT * FROM members WHERE name = :name")
     fun getMemberByName(name: String): Member?
 
-    @Query("UPDATE members SET spent = spent + :amount WHERE id = :memberId")
-    fun addExpenseToMember(memberId: Int, amount: Double)
+    @Query("""
+    SELECT m.*, COALESCE(SUM(e.amount), 0) as totalSpent
+    FROM members m
+    LEFT JOIN expenses e ON m.id = e.memberId
+    GROUP BY m.id
+""")
+    fun getMembersWithTotalSpent(): LiveData<List<MemberWithExpense>>
 
-    @Query("SELECT balance FROM members WHERE id = :memberId")
-    fun getBalanceByMemberId(memberId: Int): Double
+}
 
-    @Query("SELECT SUM(spent) FROM members")
-    fun getTotalBalance(): LiveData<Double>
+@Dao
+interface ExpenseDao {
+    @Insert
+    fun insertExpense(expense: Expense)
+
+    @Query("SELECT * FROM expenses WHERE memberId = :memberId")
+    fun getExpensesByMemberId(memberId: Int): List<Expense>
+
+    @Query("SELECT * FROM expenses WHERE id = :expenseId")
+    fun getExpenseById(expenseId: Int): Expense?
+
+    @Query("SELECT * FROM expenses")
+    fun getAllExpenses(): LiveData<List<Expense>>
+
+    @Query("SELECT SUM(amount) FROM expenses WHERE memberId = :memberId")
+    fun getTotalSpentByMemberId(memberId: Int): LiveData<Double>
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM expenses")
+    fun getTotalSpent(): LiveData<Double>
 }

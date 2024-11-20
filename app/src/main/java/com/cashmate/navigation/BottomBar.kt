@@ -1,9 +1,13 @@
 package com.cashmate.navigation
 
-import AddExpenseModal
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Add
@@ -23,32 +27,27 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.outlined.PieChartOutline
+import androidx.compose.material.icons.outlined.History
+
+import androidx.compose.material3.Icon
 
 @Composable
 fun BottomBar(
     onNavigate: (String) -> Unit,
 ) {
-    var isModalVisible by rememberSaveable { mutableStateOf(false) }
 
-    val settingsTab = TabBarItem(title = CahsMateScreen.Logs.name, selectedIcon = Icons.Filled.Star, unselectedIcon = Icons.Outlined.Star)
-    val homeTab = TabBarItem(title = CahsMateScreen.Home.name, selectedIcon = Icons.Filled.Add, unselectedIcon = Icons.Outlined.Home, action = { isModalVisible = true })
-    val moreTab = TabBarItem(title = CahsMateScreen.Stats.name, selectedIcon = Icons.Filled.Person, unselectedIcon = Icons.Outlined.Person)
+    val settingsTab = TabBarItem(title = CahsMateScreen.Logs.name, selectedIcon = Icons.Filled.History, unselectedIcon = Icons.Outlined.History)
+    val homeTab = TabBarItem(title = CahsMateScreen.Home.name, selectedIcon = Icons.Filled.Dashboard, unselectedIcon = Icons.Outlined.Dashboard)
+    val moreTab = TabBarItem(title = CahsMateScreen.Stats.name, selectedIcon = Icons.Filled.PieChart, unselectedIcon = Icons.Outlined.PieChartOutline)
 
     val tabBarItems = listOf(settingsTab, homeTab,  moreTab)
 
-    TabView(tabBarItems, onNavigate, onModalVisibilityChanged = { isVisible ->
-        isModalVisible = isVisible
-    })
-
-    if (isModalVisible) {
-        AddExpenseModal(
-            onDismiss = { isModalVisible = false },
-            onSave = { description, amount ->
-                // Lógica para guardar el gasto
-                isModalVisible = false
-            }
-        )
-    }
+    TabView(tabBarItems, onNavigate)
 }
 
 data class TabBarItem(
@@ -63,7 +62,6 @@ data class TabBarItem(
 fun TabView(
     tabBarItems: List<TabBarItem>,
     onNavigate: (String) -> Unit,
-    onModalVisibilityChanged: (Boolean) -> Unit  // Callback para cambiar la visibilidad del modal
 ) {
     var selectedTabIndex by rememberSaveable {
         mutableIntStateOf(1)
@@ -100,7 +98,6 @@ fun TabView(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TabBarIconView(
     isSelected: Boolean,

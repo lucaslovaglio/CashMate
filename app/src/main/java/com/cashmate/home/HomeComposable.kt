@@ -20,24 +20,19 @@ import com.cashmate.home.HomeViewModel
 import com.cashmate.data.Member
 import androidx.compose.ui.res.stringResource
 import com.cashmate.R
-import androidx.compose.foundation.layout.* // Asegúrate de incluir esta importación
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.runtime.*
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.rememberCoroutineScope
+import com.cashmate.common.AddExpenseButton
+import com.cashmate.common.BottomSheetContent
+import com.cashmate.data.MemberWithExpense
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home() {
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val members by homeViewModel.members.collectAsState(initial = emptyList())
+    val membersWithExpenses by homeViewModel.membersWithExpenses.collectAsState(initial = emptyList())
     val totalExpense by homeViewModel.totalExpense.collectAsState(initial = 0.0)
 
     var showBottomModal by remember { mutableStateOf(false) }
@@ -45,47 +40,19 @@ fun Home() {
     val tripName = "Trip Name"
 
 
-    // BottomSheet State
     if (showBottomModal) {
-        ModalBottomSheet(
+        BottomSheetContent(
+            members = members,
+            onAddExpense = { member, amount, description ->
+                homeViewModel.insertExpense(member.id, amount, description)
+            },
+            onAddMember = { name ->
+                homeViewModel.insertMember(Member(0, name))
+            },
             onDismissRequest = { showBottomModal = false }
-        ) {
-            var selectedTabIndex by remember { mutableStateOf(0) }
-            val tabTitles = listOf("Add Expense", "Add Member")
-
-            // Tabs
-            Column {
-                TabRow(selectedTabIndex = selectedTabIndex) {
-                    tabTitles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = { Text(title) }
-                        )
-                    }
-                }
-
-                // Content based on selected tab
-                when (selectedTabIndex) {
-                    0 -> AddExpenseContent(
-                        members = members,
-                        onAddExpense = { member, amount, description ->
-                            homeViewModel.addExpenseToMember(member.id, amount)
-                            showBottomModal = false
-                        }
-                    )
-                    1 -> AddMemberContent(
-                        onAddMember = { name ->
-                            homeViewModel.insertMember(Member(0, name, 0.0, 0.0))
-                            showBottomModal = false
-                        }
-                    )
-                }
-            }
-        }
+        )
     }
 
-    // Main UI
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -98,7 +65,7 @@ fun Home() {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                // Título del viaje
+                // Trip Name
                 Text(
                     text = tripName,
                     style = MaterialTheme.typography.headlineMedium,
@@ -108,14 +75,14 @@ fun Home() {
                         .padding(bottom = 16.dp)
                 )
 
-                // Cards de gastos
+                // Expense Cards
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     ExpenseCard(
                         title = stringResource(R.string.average_spending),
-                        amount = totalExpense / members.size
+                        amount = if (members.isEmpty()) totalExpense else totalExpense / members.size
                     )
                     ExpenseCard(
                         title = stringResource(R.string.total_spent),
@@ -123,7 +90,7 @@ fun Home() {
                     )
                 }
 
-                // Título de miembros
+                // Member Title
                 Text(
                     text = stringResource(R.string.members_title),
                     style = MaterialTheme.typography.headlineSmall,
@@ -132,9 +99,9 @@ fun Home() {
                         .padding(vertical = 16.dp)
                 )
 
-                // Lista de miembros con sus gastos
+                // Member list with expenses
                 LazyColumn {
-                    items(members) { member ->
+                    items(membersWithExpenses) { member ->
                         MemberExpenseItem(member, totalExpense, members.size)
                     }
                 }
@@ -143,122 +110,15 @@ fun Home() {
 
 
             // FloatingActionButton
-            FloatingActionButton(
+            AddExpenseButton(
                 onClick = { showBottomModal = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
         }
     }
 }
 
-@Composable
-fun AddExpenseContent(
-    members: List<Member>,
-    onAddExpense: (Member, Double, String) -> Unit
-) {
-    var selectedMember by remember { mutableStateOf("") }
-    var amount by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text("Add New Expense", style = MaterialTheme.typography.headlineMedium)
-
-        // Dropdown for member selection
-        var expanded by remember { mutableStateOf(false) }
-        Box {
-            TextButton(onClick = { expanded = !expanded }) {
-                Text(selectedMember.ifEmpty { "Select a Member" })
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                members.forEach { member ->
-                    DropdownMenuItem(
-                        text = { Text(text = member.name) },
-                        onClick = {
-                            selectedMember = member.name
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        // Amount input
-        TextField(
-            value = amount,
-            onValueChange = { amount = it },
-            label = { Text("Amount") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-
-        // Description input
-        TextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text("Description") }
-        )
-
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Button(
-                onClick = {
-                    val member = members.find { it.name == selectedMember }
-                    if (member != null && amount.isNotEmpty() && description.isNotEmpty()) {
-                        onAddExpense(member, amount.toDouble(), description)
-                    }
-                }
-            ) {
-                Text("Add")
-            }
-        }
-    }
-}
-
-@Composable
-fun AddMemberContent(
-    onAddMember: (String) -> Unit
-) {
-    var memberName by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text("Add New Member", style = MaterialTheme.typography.headlineMedium)
-
-        // Name input
-        TextField(
-            value = memberName,
-            onValueChange = { memberName = it },
-            label = { Text("Name") }
-        )
-
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Button(
-                onClick = {
-                    if (memberName.isNotEmpty()) {
-                        onAddMember(memberName)
-                    }
-                }
-            ) {
-                Text("Add")
-            }
-        }
-    }
-}
 
 
 @Composable
@@ -283,7 +143,7 @@ fun ExpenseCard(title: String, amount: Double) {
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun MemberExpenseItem(member: Member, totalExpense: Double, membersQty: Int) {
+fun MemberExpenseItem(member: MemberWithExpense, totalExpense: Double, membersQty: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -291,11 +151,11 @@ fun MemberExpenseItem(member: Member, totalExpense: Double, membersQty: Int) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = member.name)
-        Text(text = "${stringResource(R.string.spent)}: $${String.format("%.2f", member.spent)}")
-        Text(text = if (member.spent < totalExpense / membersQty) {
-            "${stringResource(R.string.owes)}: $${String.format("%.2f", (totalExpense / membersQty) - member.spent)}"
+        Text(text = "${stringResource(R.string.spent)}: $${String.format("%.2f", member.totalSpent)}")
+        Text(text = if (member.totalSpent <= totalExpense / membersQty) {
+            "${stringResource(R.string.owes)}: $${String.format("%.2f", (totalExpense / membersQty) - member.totalSpent)}"
         } else {
-            "${stringResource(R.string.is_owed)}: $${String.format("%.2f", ((totalExpense / membersQty) - member.spent) * -1)}"
+            "${stringResource(R.string.is_owed)}: $${String.format("%.2f", ((totalExpense / membersQty) - member.totalSpent) * -1)}"
         })
     }
 }

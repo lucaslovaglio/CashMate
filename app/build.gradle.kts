@@ -83,4 +83,6 @@ dependencies {
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.compose.material:material-icons-extended:1.x.x")
+
 }

@@ -3,6 +3,7 @@ package com.cashmate.data
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(tableName = "trip")
 data class Trip(
@@ -11,22 +12,28 @@ data class Trip(
     val date: String
 )
 
-@Entity(tableName = "trip_member",
-    foreignKeys = [ForeignKey(entity = Trip::class,
-        parentColumns = ["id"],
-        childColumns = ["tripId"],
-        onDelete = ForeignKey.CASCADE)])
-data class TripMember(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val tripId: Int,
-    val memberId: Int,
-    val spent: Double
-)
-
 @Entity(tableName = "members")
 data class Member(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
-    val spent: Double,
-    val balance: Double
 )
+
+@Entity(tableName = "expenses",
+    foreignKeys = [ForeignKey(entity = Member::class,
+        parentColumns = ["id"],
+        childColumns = ["memberId"],
+        onDelete = ForeignKey.CASCADE)])
+data class Expense(
+    @PrimaryKey(autoGenerate = true) val id: Int,
+    val memberId: Int,
+    val amount: Double,
+    val description: String,
+    val date: String = Date().toString()
+)
+
+data class MemberWithExpense(
+    val id: Int,
+    val name: String,
+    val totalSpent: Double
+)
+
