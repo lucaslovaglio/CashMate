@@ -43,8 +43,8 @@ fun Home() {
     if (showBottomModal) {
         BottomSheetContent(
             members = members,
-            onAddExpense = { member, amount, description ->
-                homeViewModel.insertExpense(member.id, amount, description)
+            onAddExpense = { member, amount, description, isDollar ->
+                homeViewModel.insertExpense(member.id, amount, description, isDollar)
             },
             onAddMember = { name ->
                 homeViewModel.insertMember(Member(0, name))

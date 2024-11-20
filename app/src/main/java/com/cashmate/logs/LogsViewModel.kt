@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 import androidx.compose.runtime.State
+import com.cashmate.apiManager.ApiServiceImpl
+import kotlinx.coroutines.flow.StateFlow
 
 
 @HiltViewModel
@@ -30,11 +32,36 @@ class LogsViewModel @Inject constructor(
     val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow()
     val expenses = cashMateDatabase.expenseDao().getAllExpenses().asFlow()
 
+    private val apiService = ApiServiceImpl()
 
+    private val _dollarExchangeRate = MutableStateFlow<Double?>(null)
+    val dollarExchangeRate: StateFlow<Double?> = _dollarExchangeRate
 
-    fun insertExpense(memberId: Int, amount: Double, description: String) {
+    init {
+//        fetchDollarExchangeRate()
+    }
+
+    private fun fetchDollarExchangeRate() {
         viewModelScope.launch(Dispatchers.IO) {
-            val expense = Expense(0, memberId, amount, description)
+            try {
+                val exchangeRate = apiService.getExchangeRates().blue.value_avg
+                _dollarExchangeRate.emit(exchangeRate)
+            } catch (e: Exception) {
+                println("Error fetching dollar exchange rate: ${e.message}")
+            }
+        }
+    }
+
+
+    fun insertExpense(memberId: Int, amount: Double, description: String, isDollar: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val finalAmount = if (isDollar) {
+                val rate = _dollarExchangeRate.value ?: 2.0
+                amount * rate
+            } else {
+                amount
+            }
+            val expense = Expense(0, memberId, finalAmount, description)
             cashMateDatabase.expenseDao().insertExpense(expense)
         }
     }

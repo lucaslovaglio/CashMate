@@ -84,5 +84,8 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-ktx:2.6.1")
     implementation("androidx.compose.material:material-icons-extended:1.x.x")
+    implementation("androidx.compose.material3:material3:1.2.0-rc01")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit:converter-gson:2.0.0-beta2")
 
 }

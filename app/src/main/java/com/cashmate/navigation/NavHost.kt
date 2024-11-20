@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.composable
 import com.cashmate.ui.home.Home
+import com.cashmate.ui.stats.Stats
 
 @Composable
 fun NavHostComposable(innerPadding: PaddingValues, navController: NavHostController) {
@@ -18,7 +19,7 @@ fun NavHostComposable(innerPadding: PaddingValues, navController: NavHostControl
         modifier = Modifier.padding(innerPadding)
     ) {
         composable(CahsMateScreen.Stats.name) {
-//            ProfileScreen()
+            Stats()
         }
         composable(CahsMateScreen.Home.name) {
             Home()

@@ -70,8 +70,8 @@ fun Logs() {
                 if (showBottomModal) {
                     BottomSheetContent(
                         members = members,
-                        onAddExpense = { member, amount, description ->
-                            logsViewModel.insertExpense(member.id, amount, description)
+                        onAddExpense = { member, amount, description, isDollar ->
+                            logsViewModel.insertExpense(member.id, amount, description, isDollar)
                         },
                         onAddMember = { name ->
                             logsViewModel.insertMember(Member(0, name))

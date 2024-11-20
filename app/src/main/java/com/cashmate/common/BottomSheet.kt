@@ -14,12 +14,13 @@ import androidx.compose.material3.TabRow
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.Alignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetContent(
     members: List<Member>,
-    onAddExpense: (Member, Double, String) -> Unit,
+    onAddExpense: (Member, Double, String, Boolean) -> Unit,
     onAddMember: (String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -43,8 +44,8 @@ fun BottomSheetContent(
             when (selectedTabIndex) {
                 0 -> AddExpenseContent(
                     members = members,
-                    onAddExpense = { member, amount, description ->
-                        onAddExpense(member, amount, description)
+                    onAddExpense = { member, amount, description, isDollar ->
+                        onAddExpense(member, amount, description, isDollar)
                         onDismissRequest()
                     }
                 )
@@ -62,11 +63,12 @@ fun BottomSheetContent(
 @Composable
 fun AddExpenseContent(
     members: List<Member>,
-    onAddExpense: (Member, Double, String) -> Unit
+    onAddExpense: (Member, Double, String, Boolean) -> Unit
 ) {
     var selectedMember by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var isDollar by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.padding(16.dp),
@@ -111,12 +113,24 @@ fun AddExpenseContent(
             label = { Text("Description") }
         )
 
+        // Currency selection
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Is this amount in dollars?")
+            Checkbox(
+                checked = isDollar,
+                onCheckedChange = { isDollar = it }
+            )
+        }
+
         Box(modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
                     val member = members.find { it.name == selectedMember }
                     if (member != null && amount.isNotEmpty() && description.isNotEmpty()) {
-                        onAddExpense(member, amount.toDouble(), description)
+                        onAddExpense(member, amount.toDouble(), description, isDollar)
                     }
                 }
             ) {

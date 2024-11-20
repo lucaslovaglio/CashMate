@@ -37,3 +37,8 @@ data class MemberWithExpense(
     val totalSpent: Double
 )
 
+data class Transaction(
+    val payerName: String,
+    val receiverName: String,
+    val amount: Double
+)
