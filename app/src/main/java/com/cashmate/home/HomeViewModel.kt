@@ -3,6 +3,7 @@ package com.cashmate.home
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.cashmate.apiManager.ApiServiceImpl
 import com.cashmate.data.AppDatabase
@@ -13,9 +14,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.util.Date
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,29 +26,48 @@ class HomeViewModel @Inject constructor(
     private val apiService = ApiServiceImpl()
     val members = cashMateDatabase.memberDao().getAllMembers().asFlow()
     val totalExpense = cashMateDatabase.expenseDao().getTotalSpent().asFlow()
-    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow()
+//    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow()
+    val membersWithExpenses = liveData(Dispatchers.IO) {
+        val members = cashMateDatabase.memberDao().getMembersWithTotalSpent()
+        emit(members)
+    }.asFlow()
+
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
 
     private val _dollarExchangeRate = MutableStateFlow<Double?>(null)
     val dollarExchangeRate: StateFlow<Double?> = _dollarExchangeRate
+
+    private val _needRetry = MutableStateFlow(false)
+    val needRetry = _needRetry.asStateFlow()
 
     init {
         fetchDollarExchangeRate()
     }
 
     private fun fetchDollarExchangeRate() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val exchangeRate = apiService.getExchangeRates().blue.value_avg
-                _dollarExchangeRate.emit(exchangeRate)
-            } catch (e: Exception) {
-                println("Error fetching dollar exchange rate: ${e.message}")
+        _loading.value = true
+        apiService.getExchangeRates(
+            context,
+            onSuccess = { response ->
+                _dollarExchangeRate.value = response.blue.value_avg
+                _needRetry.value = false
+            },
+            onFail = {
+                _needRetry.value = true
+            },
+            loadingFinished = {
+                _loading.value = false
             }
-        }
+        )
     }
 
 
     fun insertExpense(memberId: Int, amount: Double, description: String, isDollar: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
+            if (_needRetry.value) {
+                fetchDollarExchangeRate()
+            }
             val finalAmount = if (isDollar) {
                 val rate = _dollarExchangeRate.value ?: 1.0
                 amount * rate

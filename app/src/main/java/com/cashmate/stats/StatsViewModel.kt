@@ -25,62 +25,92 @@ class StatsViewModel @Inject constructor(
     ) : ViewModel() {
     private val cashMateDatabase = AppDatabase.getDatabase(context)
 
-    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow()
+//    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent()
+val membersWithExpenses = liveData(Dispatchers.IO) {
+        val members = cashMateDatabase.memberDao().getMembersWithTotalSpent()
+        emit(members)
+    }.asFlow()
+
+
     val totalExpense = cashMateDatabase.expenseDao().getTotalSpent().asFlow()
 
 
-    val transactions = cashMateDatabase.memberDao().calculateMinimalTransactions().asFlow()
+//    val transactions = cashMateDatabase.memberDao().calculateMinimalTransactions().asFlow()
 
-//TODO fix minimal transactions logic
+    val transactions = liveData(Dispatchers.IO) {
+        val members = cashMateDatabase.memberDao().getMembersWithTotalSpent()
+        emit(calculateMinimalTransactions(members))
+    }.asFlow()
 
-//        val transactions = liveData(Dispatchers.Default) {
-//        val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow().asLiveData().value ?: return@liveData
-//        val transactions = calculateMinimalTransactions(membersWithExpenses)
-//        if (transactions.isEmpty()) {
-//            println("No transactions to display")
-//        } else {
-//            println("Transactions emitted: $transactions")
-//        }
-//        emit(transactions)
-//    }
-//    val transactionsFlow = transactions.asFlow()
 
-//    private fun calculateMinimalTransactions(membersWithExpenses: List<MemberWithExpense>): List<Transaction> {
-//        val totalSpent = membersWithExpenses.sumOf { it.totalSpent }
-//        val averageSpent = totalSpent / membersWithExpenses.size
-//
-//        val balances = membersWithExpenses.map {
-//            it.id to (it.totalSpent - averageSpent)
-//        }.toMap()
-//
-//        val creditors = balances.filter { it.value > 0 }.toList().toMutableList()
-//        val debtors = balances.filter { it.value < 0 }.toList().toMutableList()
-//
-//        val transactions = mutableListOf<Transaction>()
-//
-//        while (creditors.isNotEmpty() && debtors.isNotEmpty()) {
-//            val creditor = creditors.first()
-//            val debtor = debtors.first()
-//
-//            val amount = minOf(creditor.second, -debtor.second)
-//
-//            transactions.add(
-//                Transaction(
-//                    payerName = membersWithExpenses.first { it.id == debtor.first }.name,
-//                    receiverName = membersWithExpenses.first { it.id == creditor.first }.name,
-//                    amount = amount
-//                )
-//            )
-//
-//            val updatedCreditorBalance = creditor.second - amount
-//            val updatedDebtorBalance = debtor.second + amount
-//
-//            if (updatedCreditorBalance == 0.0) creditors.removeAt(0) else creditors[0] = creditor.first to updatedCreditorBalance
-//            if (updatedDebtorBalance == 0.0) debtors.removeAt(0) else debtors[0] = debtor.first to updatedDebtorBalance
-//        }
-//
-//        return transactions
-//    }
+    private fun calculateMinimalTransactions(members: List<MemberWithExpense>): List<Transaction> {
+        val totalExpense = members.sumOf { it.totalSpent }
+        val averageExpense = totalExpense / members.size
+
+        // Calcula los balances
+        val balances = members.map {
+            it.id to it.totalSpent - averageExpense
+        }.toMutableList()
+
+        // Separa los acreedores y deudores
+        val creditors = balances.filter { it.second > 0 }.sortedByDescending { it.second }.toMutableList()
+        val debtors = balances.filter { it.second < 0 }.sortedBy { it.second }.toMutableList()
+
+        val transactions = mutableListOf<Transaction>()
+
+        while (debtors.isNotEmpty() && creditors.isNotEmpty()) {
+            val debtor = debtors[0]
+            val creditor = creditors[0]
+
+            // Determina el monto a pagar
+            val amountToPay = minOf(-debtor.second, creditor.second)
+
+            // Crea la transacción
+            transactions.add(
+                Transaction(
+                    fromMemberId = debtor.first,
+                    toMemberId = creditor.first,
+                    amount = amountToPay,
+                    payerName = members.find { it.id == debtor.first }?.name ?: "Unknown",
+                    receiverName = members.find { it.id == creditor.first }?.name ?: "Unknown"
+                )
+            )
+
+            // Actualiza los balances
+            balances[balances.indexOf(debtor)] = debtor.first to (debtor.second + amountToPay)
+            balances[balances.indexOf(creditor)] = creditor.first to (creditor.second - amountToPay)
+
+            // Si el deudor ya pagó toda su deuda, lo elimina
+            if (balances.find { it.first == debtor.first }?.second == 0.0) {
+                debtors.removeAt(0)
+            }
+
+            // Si el acreedor ha recibido todo el pago, lo elimina
+            if (balances.find { it.first == creditor.first }?.second == 0.0) {
+                creditors.removeAt(0)
+            }
+
+            // Aquí actualizamos los balances finales
+            debtors.forEach { debtor ->
+                val updatedBalance = balances.find { balance -> balance.first == debtor.first }
+                if (updatedBalance != null) {
+                    debtors[debtors.indexOfFirst { it.first == debtor.first }] = debtor.first to updatedBalance.second
+                }
+            }
+
+            creditors.forEach { creditor ->
+                val updatedBalance = balances.find { balance -> balance.first == creditor.first }
+                if (updatedBalance != null) {
+                    creditors[creditors.indexOfFirst { it.first == creditor.first }] = creditor.first to updatedBalance.second
+                }
+            }
+        }
+
+        return transactions
+    }
+
+
+
 
 }
 

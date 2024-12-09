@@ -126,14 +126,18 @@ fun ExpenseCard(title: String, amount: Double) {
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .width(200.dp)
+            .width(200.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+//            contentColor = MaterialTheme.colorScheme.secondary
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
             Text(text = "$${String.format("%.2f", amount)}", style = MaterialTheme.typography.headlineMedium)

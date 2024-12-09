@@ -10,6 +10,11 @@
     <string name="is_owed">Is owed</string>
     <string name="owes">Owes</string>
     <string name="add_member">Add Member</string>
+    <string name="trip_stats">Trip Stats</string>
+    <string name="debt_summary_title">Who Owes Whom</string>
+    <string name="empty_transactions">No pending transactions</string>
+    <string name="expenses_by_member">Expenses by Member</string>
+
 
 
 

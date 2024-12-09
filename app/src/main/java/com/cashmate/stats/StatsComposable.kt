@@ -8,7 +8,9 @@ import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cashmate.R
 import com.cashmate.data.MemberWithExpense
 import com.cashmate.data.Transaction
 import com.cashmate.home.HomeViewModel
@@ -19,7 +21,8 @@ fun Stats() {
     val viewModel = hiltViewModel<StatsViewModel>()
     val membersWithExpenses by viewModel.membersWithExpenses.collectAsState(initial = emptyList())
     val totalExpense by viewModel.totalExpense.collectAsState(initial = 0.0)
-    val transactions by viewModel.transactions.collectAsState(emptyList())
+    val transactions by viewModel.transactions.collectAsState(initial = emptyList())
+
 
     StatsComposable(
         membersWithExpenses = membersWithExpenses,
@@ -41,19 +44,27 @@ fun StatsComposable(
             .padding(16.dp)
     ) {
         Text(
-            text = "Estadísticas del Viaje",
+            text = stringResource(R.string.trip_stats),
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
         Text(
-            text = "Gasto Total: $${String.format("%.2f", totalSpent)}",
+            text = stringResource(R.string.total_spent) + ": $${String.format("%.2f", totalSpent)}",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.debt_summary_title) + ":",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
         if (transactions.isEmpty()) {
-            Text(text = "No transactions available")
+            Text(text = stringResource(R.string.empty_transactions))
         } else {
             LazyColumn(modifier = Modifier.weight(1f)) {
                 items(transactions) { transaction ->
@@ -65,18 +76,19 @@ fun StatsComposable(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Gastos por Miembro:",
+            text = stringResource(R.string.expenses_by_member) + ":",
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         LazyColumn {
             items(membersWithExpenses) { member ->
-                com.cashmate.ui.home.MemberExpenseItem(member, totalSpent, membersWithExpenses.size)
+                MemberExpenseItem(member)
             }
         }
     }
 }
+
 
 @Composable
 fun TransactionItem(transaction: Transaction) {
@@ -113,7 +125,7 @@ fun MemberExpenseItem(member: MemberWithExpense) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = member.name)
-            Text(text = "Gastó: $${String.format("%.2f", member.totalSpent)}")
+            Text(text = stringResource(R.string.spent) + ": $${String.format("%.2f", member.totalSpent)}")
         }
     }
 }

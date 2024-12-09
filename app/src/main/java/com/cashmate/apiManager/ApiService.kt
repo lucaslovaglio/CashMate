@@ -6,5 +6,5 @@ import retrofit.http.GET
 
 interface ApiService {
     @GET("v2/latest")
-    suspend fun getExchangeRates(): BlueRateResponse
+    fun getExchangeRates(): Call<BlueRateResponse>
 }

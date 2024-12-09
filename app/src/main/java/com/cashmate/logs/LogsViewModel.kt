@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 import androidx.compose.runtime.State
+import androidx.lifecycle.liveData
 import com.cashmate.apiManager.ApiServiceImpl
 import kotlinx.coroutines.flow.StateFlow
 
@@ -29,7 +30,12 @@ class LogsViewModel @Inject constructor(
     private val cashMateDatabase = AppDatabase.getDatabase(context)
     val members = cashMateDatabase.memberDao().getAllMembers().asFlow()
     val totalExpense = cashMateDatabase.expenseDao().getTotalSpent().asFlow()
-    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow()
+//    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent().asFlow()
+    val membersWithExpenses = liveData(Dispatchers.IO) {
+        val members = cashMateDatabase.memberDao().getMembersWithTotalSpent()
+        emit(members)
+    }.asFlow()
+
     val expenses = cashMateDatabase.expenseDao().getAllExpenses().asFlow()
 
     private val apiService = ApiServiceImpl()
@@ -42,14 +48,14 @@ class LogsViewModel @Inject constructor(
     }
 
     private fun fetchDollarExchangeRate() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val exchangeRate = apiService.getExchangeRates().blue.value_avg
-                _dollarExchangeRate.emit(exchangeRate)
-            } catch (e: Exception) {
-                println("Error fetching dollar exchange rate: ${e.message}")
-            }
-        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val exchangeRate = apiService.getExchangeRates().blue.value_avg
+//                _dollarExchangeRate.emit(exchangeRate)
+//            } catch (e: Exception) {
+//                println("Error fetching dollar exchange rate: ${e.message}")
+//            }
+//        }
     }
 
 

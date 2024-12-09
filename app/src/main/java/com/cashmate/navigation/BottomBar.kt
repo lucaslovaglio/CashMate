@@ -35,6 +35,7 @@ import androidx.compose.material.icons.outlined.PieChartOutline
 import androidx.compose.material.icons.outlined.History
 
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun BottomBar(
@@ -92,7 +93,9 @@ fun TabView(
                     )
                 },
                 label = { "holq" },
-                colors = NavigationBarItemDefaults.colors()
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.secondary,
+                )
             )
         }
     }
