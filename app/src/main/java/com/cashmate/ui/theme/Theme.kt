@@ -23,7 +23,8 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = Color.White,
     onTertiary = Color.Black,
     onBackground = TextPrimaryDark,
-    onSurface = TextSecondaryDark
+    onSurface = TextSecondaryDark,
+    error = Error,
 )
 
 // Tema Claro
@@ -37,7 +38,8 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = Color.Black,
     onTertiary = Color.Black,
     onBackground = TextPrimaryLight,
-    onSurface = TextSecondaryLight
+    onSurface = TextSecondaryLight,
+    error = Error,
 )
 
 

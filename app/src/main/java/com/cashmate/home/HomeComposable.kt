@@ -101,7 +101,7 @@ fun Home() {
                         }
                     } else {
                         Text(
-                            text = tripName ?: "Nombre del viaje",
+                            text = tripName ?: stringResource(R.string.trip_name),
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.weight(1f)

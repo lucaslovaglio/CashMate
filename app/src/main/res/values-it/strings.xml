@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">CashMate</string>
+    <string name="logs_title">Ultimi movimenti</string>
+    <string name="amount">Quantità</string>
+    <string name="average_spending">Spesa media</string>
+    <string name="total_spent">Totale speso</string>
+    <string name="members_title">Membri del viaggio</string>
+    <string name="trip_name">Nome del viaggio</string>
+    <string name="add_expense">Aggiungi spesa</string>
+    <string name="add_new_expense">Aggiungi nuova spesa</string>
+    <string name="spent">Speso</string>
+    <string name="is_owed">è dovuto</string>
+    <string name="owes">deve</string>
+    <string name="add_member">Aggiungi membro</string>
+    <string name="add_new_member">Aggiungi nuovo membro</string>
+    <string name="add">Aggiungere</string>
+    <string name="name">Nome</string>
+    <string name="description">Descrizione</string>
+    <string name="trip_stats">Statistiche di viaggio</string>
+    <string name="debt_summary_title">Chi deve a chi</string>
+    <string name="empty_transactions">Nessuna transazione in sospeso</string>
+    <string name="expenses_by_member">Spese per membro</string>
+    <string name="is_dollar">Questo importo è in dollari\?</string>
+    <string name="select_member">Seleziona un membro</string>
+
+
+
+
+</resources>
