@@ -3,6 +3,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
@@ -24,6 +25,7 @@ import com.cashmate.R
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import com.cashmate.data.Expense
+import com.cashmate.data.ExpenseWithMemberName
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,10 +61,11 @@ fun Logs() {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(expenses.size) { index ->
-                        val memberName by logsViewModel.getMemberName(expenses[index].memberId) // Observe the name here
                         MovementCard(
                             expense = expenses[index],
-                            memberName = memberName
+                            onDeleteClick = { expenseId ->
+                                logsViewModel.deleteExpense(expenseId)
+                            }
                         )
                     }
                 }
@@ -91,10 +94,13 @@ fun Logs() {
 
 
 @Composable
-fun MovementCard(expense: Expense, memberName: String) {
+fun MovementCard(expense: ExpenseWithMemberName, onDeleteClick: (Int) -> Unit) {
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier
@@ -103,21 +109,36 @@ fun MovementCard(expense: Expense, memberName: String) {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = memberName, style = MaterialTheme.typography.bodyMedium)
+                Text(text = expense.memberName, style = MaterialTheme.typography.bodyMedium)
                 Text(text = expense.date.toString(), style = MaterialTheme.typography.bodySmall)
             }
-            Text(
-                text = "${stringResource(R.string.amount)}: \$${expense.amount}",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-            Text(
-                text = expense.description,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "${stringResource(R.string.amount)}: \$${expense.amount}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    Text(
+                        text = expense.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                IconButton(onClick = { onDeleteClick(expense.id) }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                    )
+                }
+            }
         }
     }
 }

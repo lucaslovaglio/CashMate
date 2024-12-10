@@ -36,7 +36,7 @@ class LogsViewModel @Inject constructor(
         emit(members)
     }.asFlow()
 
-    val expenses = cashMateDatabase.expenseDao().getAllExpenses().asFlow()
+    val expenses = cashMateDatabase.expenseDao().getAllExpensesWithMemberName().asFlow()
 
     private val apiService = ApiServiceImpl()
 
@@ -87,27 +87,15 @@ class LogsViewModel @Inject constructor(
         }
     }
 
+    fun deleteExpense(expenseId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            cashMateDatabase.expenseDao().deleteExpenseById(expenseId)
+        }
+    }
+
     fun insertMember(member: Member) {
         viewModelScope.launch(Dispatchers.IO) {
             cashMateDatabase.memberDao().insertMember(member)
         }
     }
-
-    fun getMemberName(memberId: Int): State<String> {
-        val memberName = mutableStateOf("")
-
-        viewModelScope.launch {
-            try {
-                val member = cashMateDatabase.memberDao().getMemberById(memberId)
-                memberName.value = member?.name ?: "Unknown"
-            } catch (e: Exception) {
-                println("Error: $e")
-                memberName.value = "Error"
-            }
-        }
-
-        return memberName
-    }
-
-
 }

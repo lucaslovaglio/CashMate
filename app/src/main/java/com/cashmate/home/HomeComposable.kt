@@ -119,7 +119,6 @@ fun Home() {
                     }
                 }
 
-
                 // Expense Cards
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -157,8 +156,6 @@ fun Home() {
                 }
             }
 
-
-
             // FloatingActionButton
             AddExpenseButton(
                 onClick = { showBottomModal = true },
@@ -168,9 +165,6 @@ fun Home() {
     }
 }
 
-
-
-
 @Composable
 fun ExpenseCard(title: String, amount: Double) {
     Card(
@@ -178,8 +172,7 @@ fun ExpenseCard(title: String, amount: Double) {
             .padding(8.dp)
             .width(200.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-//            contentColor = MaterialTheme.colorScheme.secondary
+            containerColor = MaterialTheme.colorScheme.secondary
         )
     ) {
         Column(
@@ -210,7 +203,8 @@ fun MemberItem(member: Member, onDeleteMember: (Int) -> Unit) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondary
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onBackground
             )
         ) {
             Row(
@@ -233,7 +227,6 @@ fun MemberItem(member: Member, onDeleteMember: (Int) -> Unit) {
                 }
             }
         }
-
     }
 }
 

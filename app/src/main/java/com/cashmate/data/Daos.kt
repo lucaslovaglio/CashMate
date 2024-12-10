@@ -73,6 +73,14 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses ORDER BY id DESC")
     fun getAllExpenses(): LiveData<List<Expense>>
 
+    @Query("""
+        SELECT e.id, m.name as memberName, e.amount, e.description, e.date
+        FROM expenses e
+        INNER JOIN members m ON e.memberId = m.id
+        ORDER BY e.id DESC
+    """)
+    fun getAllExpensesWithMemberName(): LiveData<List<ExpenseWithMemberName>>
+
     @Query("SELECT SUM(amount) FROM expenses WHERE memberId = :memberId")
     fun getTotalSpentByMemberId(memberId: Int): LiveData<Double>
 
@@ -81,6 +89,9 @@ interface ExpenseDao {
 
     @Query("DELETE FROM expenses WHERE memberId = :memberId")
     fun deleteExpensesByMemberId(memberId: Int)
+
+    @Query("DELETE FROM expenses WHERE id = :expenseId")
+    fun deleteExpenseById(expenseId: Int)
 }
 
 @Dao

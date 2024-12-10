@@ -96,7 +96,10 @@ fun TransactionItem(transaction: Transaction) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier
@@ -104,7 +107,7 @@ fun TransactionItem(transaction: Transaction) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "${transaction.payerName} debe a ${transaction.receiverName}")
+            Text(text = "${transaction.payerName} ${stringResource(R.string.owes)} ${transaction.receiverName}")
             Text(text = "$${String.format("%.2f", transaction.amount)}")
 
         }
@@ -117,7 +120,10 @@ fun MemberExpenseItem(member: MemberWithExpense, totalExpense: Double, membersQt
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier

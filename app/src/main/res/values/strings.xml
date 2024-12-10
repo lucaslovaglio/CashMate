@@ -6,14 +6,21 @@
     <string name="total_spent">Total Spent</string>
     <string name="members_title">Trip Members</string>
     <string name="add_expense">Add Expense</string>
+    <string name="add_new_expense">Add New Expense</string>
     <string name="spent">Spent</string>
-    <string name="is_owed">Is owed</string>
-    <string name="owes">Owes</string>
+    <string name="is_owed">is owed</string>
+    <string name="owes">owes</string>
     <string name="add_member">Add Member</string>
+    <string name="add_new_member">Add New Member</string>
+    <string name="add">Add</string>
+    <string name="name">Name</string>
+    <string name="description">Description</string>
     <string name="trip_stats">Trip Stats</string>
     <string name="debt_summary_title">Who Owes Whom</string>
     <string name="empty_transactions">No pending transactions</string>
     <string name="expenses_by_member">Expenses by Member</string>
+    <string name="is_dollar">Is this amount in dollars?</string>
+    <string name="select_member">Select a member</string>
 
 
 

@@ -15,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
+import com.cashmate.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,10 +27,11 @@ fun BottomSheetContent(
     onDismissRequest: () -> Unit
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabTitles = listOf("Add Expense", "Add Member")
+    val tabTitles = listOf(stringResource(R.string.add_expense), stringResource(R.string.add_member))
 
     ModalBottomSheet(
-        onDismissRequest = { onDismissRequest() }
+        onDismissRequest = { onDismissRequest() },
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column {
             TabRow(selectedTabIndex = selectedTabIndex) {
@@ -71,16 +74,16 @@ fun AddExpenseContent(
     var isDollar by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text("Add New Expense", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.add_new_expense), style = MaterialTheme.typography.headlineMedium)
 
         // Dropdown for member selection
         var expanded by remember { mutableStateOf(false) }
         Box {
             TextButton(onClick = { expanded = !expanded }) {
-                Text(selectedMember.ifEmpty { "Select a Member" })
+                Text(selectedMember.ifEmpty { stringResource(R.string.select_member) })
             }
             DropdownMenu(
                 expanded = expanded,
@@ -102,15 +105,17 @@ fun AddExpenseContent(
         TextField(
             value = amount,
             onValueChange = { amount = it },
-            label = { Text("Amount") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            label = { Text(stringResource(R.string.amount)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
         )
 
         // Description input
         TextField(
             value = description,
             onValueChange = { description = it },
-            label = { Text("Description") }
+            label = { Text(stringResource(R.string.description)) },
+            modifier = Modifier.fillMaxWidth()
         )
 
         // Currency selection
@@ -118,7 +123,7 @@ fun AddExpenseContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Is this amount in dollars?")
+            Text(stringResource(R.string.is_dollar))
             Checkbox(
                 checked = isDollar,
                 onCheckedChange = { isDollar = it }
@@ -134,7 +139,7 @@ fun AddExpenseContent(
                     }
                 }
             ) {
-                Text("Add")
+                Text(stringResource(R.string.add))
             }
         }
     }
@@ -147,16 +152,17 @@ fun AddMemberContent(
     var memberName by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text("Add New Member", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.add_new_member), style = MaterialTheme.typography.headlineMedium)
 
         // Name input
         TextField(
             value = memberName,
             onValueChange = { memberName = it },
-            label = { Text("Name") }
+            label = { Text(stringResource(R.string.name)) },
+            modifier = Modifier.fillMaxWidth()
         )
 
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -167,7 +173,7 @@ fun AddMemberContent(
                     }
                 }
             ) {
-                Text("Add")
+                Text(stringResource(R.string.add))
             }
         }
     }

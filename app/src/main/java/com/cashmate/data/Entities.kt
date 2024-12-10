@@ -43,3 +43,12 @@ data class Transaction(
     val payerName: String,
     val receiverName: String
 )
+
+data class ExpenseWithMemberName(
+    val id: Int,
+    val memberName: String,
+    val amount: Double,
+    val description: String,
+    val date: String
+)
+
