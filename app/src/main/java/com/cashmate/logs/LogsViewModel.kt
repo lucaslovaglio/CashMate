@@ -40,29 +40,44 @@ class LogsViewModel @Inject constructor(
 
     private val apiService = ApiServiceImpl()
 
+    private val _loading = MutableStateFlow(false)
+    val loading = _loading.asStateFlow()
+
     private val _dollarExchangeRate = MutableStateFlow<Double?>(null)
     val dollarExchangeRate: StateFlow<Double?> = _dollarExchangeRate
 
+    private val _needRetry = MutableStateFlow(false)
+    val needRetry = _needRetry.asStateFlow()
+
     init {
-//        fetchDollarExchangeRate()
+        fetchDollarExchangeRate()
     }
 
     private fun fetchDollarExchangeRate() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                val exchangeRate = apiService.getExchangeRates().blue.value_avg
-//                _dollarExchangeRate.emit(exchangeRate)
-//            } catch (e: Exception) {
-//                println("Error fetching dollar exchange rate: ${e.message}")
-//            }
-//        }
+        _loading.value = true
+        apiService.getExchangeRates(
+            context,
+            onSuccess = { response ->
+                _dollarExchangeRate.value = response.blue.value_avg
+                _needRetry.value = false
+            },
+            onFail = {
+                _needRetry.value = true
+            },
+            loadingFinished = {
+                _loading.value = false
+            }
+        )
     }
 
 
     fun insertExpense(memberId: Int, amount: Double, description: String, isDollar: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
+            if (_needRetry.value) {
+                fetchDollarExchangeRate()
+            }
             val finalAmount = if (isDollar) {
-                val rate = _dollarExchangeRate.value ?: 2.0
+                val rate = _dollarExchangeRate.value ?: 1.0
                 amount * rate
             } else {
                 amount
@@ -84,7 +99,7 @@ class LogsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val member = cashMateDatabase.memberDao().getMemberById(memberId)
-                memberName.value = member?.name ?: "Unknown" // Nombre por defecto
+                memberName.value = member?.name ?: "Unknown"
             } catch (e: Exception) {
                 println("Error: $e")
                 memberName.value = "Error"

@@ -3,6 +3,7 @@ package com.cashmate.data
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 
@@ -35,6 +36,9 @@ interface MemberDao {
 """)
     fun getMembersWithTotalSpent(): List<MemberWithExpense>
 
+
+    @Query("DELETE FROM members WHERE id = :memberId")
+    fun deleteMemberAndExpenses(memberId: Int)
 //    @Query("""
 //    WITH RECURSIVE balance_table AS (
 //        SELECT m.id AS memberId, m.name, COALESCE(SUM(e.amount), 0) -
@@ -74,4 +78,16 @@ interface ExpenseDao {
 
     @Query("SELECT COALESCE(SUM(amount), 0) FROM expenses")
     fun getTotalSpent(): LiveData<Double>
+
+    @Query("DELETE FROM expenses WHERE memberId = :memberId")
+    fun deleteExpensesByMemberId(memberId: Int)
+}
+
+@Dao
+interface TripDao {
+    @Query("SELECT name FROM trip ORDER BY id ASC LIMIT 1")
+    fun getTripName(): LiveData<String>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrUpdateTrip(trip: Trip)
 }

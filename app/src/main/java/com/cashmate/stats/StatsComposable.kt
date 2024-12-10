@@ -83,7 +83,7 @@ fun StatsComposable(
 
         LazyColumn {
             items(membersWithExpenses) { member ->
-                MemberExpenseItem(member)
+                MemberExpenseItem(member, totalSpent, membersWithExpenses.size)
             }
         }
     }
@@ -106,12 +106,13 @@ fun TransactionItem(transaction: Transaction) {
         ) {
             Text(text = "${transaction.payerName} debe a ${transaction.receiverName}")
             Text(text = "$${String.format("%.2f", transaction.amount)}")
+
         }
     }
 }
 
 @Composable
-fun MemberExpenseItem(member: MemberWithExpense) {
+fun MemberExpenseItem(member: MemberWithExpense, totalExpense: Double, membersQty: Int) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -126,6 +127,11 @@ fun MemberExpenseItem(member: MemberWithExpense) {
         ) {
             Text(text = member.name)
             Text(text = stringResource(R.string.spent) + ": $${String.format("%.2f", member.totalSpent)}")
+            Text(text = if (member.totalSpent <= totalExpense / membersQty) {
+                "${stringResource(R.string.owes)}: $${String.format("%.2f", (totalExpense / membersQty) - member.totalSpent)}"
+            } else {
+                "${stringResource(R.string.is_owed)}: $${String.format("%.2f", ((totalExpense / membersQty) - member.totalSpent) * -1)}"
+            })
         }
     }
 }

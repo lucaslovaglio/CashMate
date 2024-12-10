@@ -4,6 +4,11 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,29 +30,30 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import com.cashmate.common.AddExpenseButton
 import com.cashmate.common.BottomSheetContent
-import com.cashmate.data.MemberWithExpense
+import com.cashmate.logs.LogsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home() {
     val homeViewModel = hiltViewModel<HomeViewModel>()
+    val logsViewModel = hiltViewModel<LogsViewModel>()
     val members by homeViewModel.members.collectAsState(initial = emptyList())
-    val membersWithExpenses by homeViewModel.membersWithExpenses.collectAsState(initial = emptyList())
     val totalExpense by homeViewModel.totalExpense.collectAsState(initial = 0.0)
 
     var showBottomModal by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val tripName = "Trip Name"
-
+    val tripName by homeViewModel.tripName.collectAsState(initial = "Default Trip")
+    var isEditingTripName by remember { mutableStateOf(false) }
+    var editedTripName by remember { mutableStateOf(tripName) }
 
     if (showBottomModal) {
         BottomSheetContent(
             members = members,
             onAddExpense = { member, amount, description, isDollar ->
-                homeViewModel.insertExpense(member.id, amount, description, isDollar)
+                logsViewModel.insertExpense(member.id, amount, description, isDollar)
             },
             onAddMember = { name ->
-                homeViewModel.insertMember(Member(0, name))
+                logsViewModel.insertMember(Member(0, name))
             },
             onDismissRequest = { showBottomModal = false }
         )
@@ -66,14 +72,53 @@ fun Home() {
                     .padding(16.dp)
             ) {
                 // Trip Name
-                Text(
-                    text = tripName,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                )
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (isEditingTripName) {
+                        TextField(
+                            value = editedTripName,
+                            onValueChange = { editedTripName = it },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                            colors = TextFieldDefaults.textFieldColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        )
+                        IconButton(onClick = {
+                            homeViewModel.updateTripName(editedTripName)
+                            isEditingTripName = false
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Save Name",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = tripName ?: "Nombre del viaje",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = {
+                            editedTripName = tripName ?: ""
+                            isEditingTripName = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Name",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
 
                 // Expense Cards
                 Row(
@@ -101,8 +146,13 @@ fun Home() {
 
                 // Member list with expenses
                 LazyColumn {
-                    items(membersWithExpenses) { member ->
-                        MemberExpenseItem(member, totalExpense, members.size)
+                    items(members) { member ->
+                        MemberItem(
+                            member,
+                            onDeleteMember = { memberId ->
+                                homeViewModel.deleteMemberWithExpenses(memberId)
+                            }
+                        )
                     }
                 }
             }
@@ -147,20 +197,43 @@ fun ExpenseCard(title: String, amount: Double) {
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun MemberExpenseItem(member: MemberWithExpense, totalExpense: Double, membersQty: Int) {
+fun MemberItem(member: Member, onDeleteMember: (Int) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = member.name)
-        Text(text = "${stringResource(R.string.spent)}: $${String.format("%.2f", member.totalSpent)}")
-        Text(text = if (member.totalSpent <= totalExpense / membersQty) {
-            "${stringResource(R.string.owes)}: $${String.format("%.2f", (totalExpense / membersQty) - member.totalSpent)}"
-        } else {
-            "${stringResource(R.string.is_owed)}: $${String.format("%.2f", ((totalExpense / membersQty) - member.totalSpent) * -1)}"
-        })
+        Card(
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondary
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = member.name,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                IconButton(onClick = { onDeleteMember(member.id) }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Member",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        }
+
     }
 }
 

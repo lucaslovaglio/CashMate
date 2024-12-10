@@ -7,9 +7,8 @@ import java.util.Date
 
 @Entity(tableName = "trip")
 data class Trip(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val name: String,
-    val date: String
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val name: String = "Default Trip",
 )
 
 @Entity(tableName = "members")

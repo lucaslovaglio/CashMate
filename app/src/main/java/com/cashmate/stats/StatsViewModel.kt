@@ -25,8 +25,9 @@ class StatsViewModel @Inject constructor(
     ) : ViewModel() {
     private val cashMateDatabase = AppDatabase.getDatabase(context)
 
+
 //    val membersWithExpenses = cashMateDatabase.memberDao().getMembersWithTotalSpent()
-val membersWithExpenses = liveData(Dispatchers.IO) {
+    val membersWithExpenses = liveData(Dispatchers.IO) {
         val members = cashMateDatabase.memberDao().getMembersWithTotalSpent()
         emit(members)
     }.asFlow()
@@ -47,12 +48,12 @@ val membersWithExpenses = liveData(Dispatchers.IO) {
         val totalExpense = members.sumOf { it.totalSpent }
         val averageExpense = totalExpense / members.size
 
-        // Calcula los balances
+        // Calculo balances de cada miembro
         val balances = members.map {
             it.id to it.totalSpent - averageExpense
         }.toMutableList()
 
-        // Separa los acreedores y deudores
+        // Separo entre los que deben y los que les deben ordenando ascendentemente a los que deben y descendentemente a los que les deben. para minimizar transacciones
         val creditors = balances.filter { it.second > 0 }.sortedByDescending { it.second }.toMutableList()
         val debtors = balances.filter { it.second < 0 }.sortedBy { it.second }.toMutableList()
 
@@ -65,7 +66,6 @@ val membersWithExpenses = liveData(Dispatchers.IO) {
             // Determina el monto a pagar
             val amountToPay = minOf(-debtor.second, creditor.second)
 
-            // Crea la transacción
             transactions.add(
                 Transaction(
                     fromMemberId = debtor.first,
